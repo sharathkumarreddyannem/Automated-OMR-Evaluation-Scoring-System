@@ -1,22 +1,22 @@
 import streamlit as st
-import requests
+import os
+from app.omr.pipeline import evaluate_sheet  # ✅ adjust import if needed
 
-BACKEND_URL = "http://127.0.0.1:8000/upload/"
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-st.title("📑 Automated OMR Evaluation System")
+st.title("Uploaded OMR Sheet")
 
-uploaded_file = st.file_uploader("Upload OMR Sheet", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("Upload OMR Sheet", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    st.image(uploaded_file, caption="Uploaded OMR Sheet", use_column_width=True)
+    file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    st.image(file_path, caption="Uploaded OMR Sheet", use_column_width=True)
 
     if st.button("Evaluate"):
-        files = {"file": uploaded_file.getvalue()}
-        response = requests.post(BACKEND_URL, files={"file": (uploaded_file.name, uploaded_file.getvalue())})
-
-        if response.status_code == 200:
-            result = response.json()
-            st.success("✅ Evaluation Completed")
-            st.json(result)
-        else:
-            st.error(f"❌ Error: {response.status_code}")
+        results = evaluate_sheet(file_path)  # ✅ directly call pipeline
+        st.success("Evaluation Results")
+        st.json(results)
