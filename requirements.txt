@@ -1,6 +1,8 @@
-fastapi
-uvicorn
-python-multipart
 streamlit
-opencv-python
-pandas
+opencv-python-headless
+numpy
+pillow
+streamlit
+opencv-python-headless
+numpy
+pillow
